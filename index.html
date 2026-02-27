@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Face Authentication</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='sounds.js') }}?v=7"></script>
+</head>
+<body>
+    <div id="intro-screen" class="screen active">
+        <div class="corner-bracket top-left"></div>
+        <div class="corner-bracket top-right"></div>
+        <div class="corner-bracket bottom-left"></div>
+        <div class="corner-bracket bottom-right"></div>
+        
+        <div class="intro-content">
+            <h1 class="glitch" data-text="CYBER FACE AUTHENTICATION">CYBER FACE AUTHENTICATION</h1>
+            <p class="subtitle">SYSTEM INITIALIZING...</p>
+            
+            <div class="loading-container">
+                <div class="loading-bar">
+                    <div class="loading-fill" id="loadingFill"></div>
+                </div>
+                <div class="loading-percent" id="loadingPercent">0%</div>
+            </div>
+            
+            <div class="system-messages">
+                <p class="message" id="msg1">>> Loading Neural Network...</p>
+                <p class="message" id="msg2">>> Initializing Face Detection...</p>
+                <p class="message" id="msg3">>> Calibrating Biometric Scanner...</p>
+                <p class="message" id="msg4">>> Establishing Secure Connection...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="scan-screen" class="screen">
+        <div class="corner-bracket top-left"></div>
+        <div class="corner-bracket top-right"></div>
+        <div class="corner-bracket bottom-left"></div>
+        <div class="corner-bracket bottom-right"></div>
+        
+        <h1 class="scan-title pulse">SCANNING</h1>
+        
+        <div class="hud-container">
+            <div class="hud-circle-outer rotating"></div>
+            <div class="hud-circle-middle rotating-reverse"></div>
+            <div class="hud-circle-inner rotating"></div>
+            
+            <div class="hud-segments">
+                <div class="hud-segment" style="transform: rotate(0deg)"></div>
+                <div class="hud-segment" style="transform: rotate(45deg)"></div>
+                <div class="hud-segment" style="transform: rotate(90deg)"></div>
+                <div class="hud-segment" style="transform: rotate(135deg)"></div>
+                <div class="hud-segment" style="transform: rotate(180deg)"></div>
+                <div class="hud-segment" style="transform: rotate(225deg)"></div>
+                <div class="hud-segment" style="transform: rotate(270deg)"></div>
+                <div class="hud-segment" style="transform: rotate(315deg)"></div>
+            </div>
+            
+            <div class="hud-core"></div>
+            <div class="hud-crosshair"></div>
+        </div>
+        
+        <p class="scan-status">BIOMETRIC SCAN IN PROGRESS</p>
+        
+        <div class="scan-data">
+            <div class="data-item">
+                <span class="data-label">STATUS:</span>
+                <span class="data-value loading-dots">ANALYZING</span>
+            </div>
+            <div class="data-item">
+                <span class="data-label">PROGRESS:</span>
+                <span class="data-value" id="scanProgress">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="ready-screen" class="screen">
+        <div class="corner-bracket top-left"></div>
+        <div class="corner-bracket top-right"></div>
+        <div class="corner-bracket bottom-left"></div>
+        <div class="corner-bracket bottom-right"></div>
+        
+        <h1 class="ready-title glow">SYSTEM READY</h1>
+        <p class="start-prompt blink">CLICK TO START AUTHENTICATION</p>
+    </div>
+
+    <div id="auth-screen" class="screen">
+        <div class="corner-bracket top-left"></div>
+        <div class="corner-bracket top-right"></div>
+        <div class="corner-bracket bottom-left"></div>
+        <div class="corner-bracket bottom-right"></div>
+        
+        <h2 class="auth-title">FACE AUTHENTICATION</h2>
+        
+        <div class="camera-container">
+            <video id="video" autoplay></video>
+            <canvas id="canvas"></canvas>
+            <canvas id="faceCanvas"></canvas>
+            <div class="scan-line-horizontal"></div>
+            <div class="face-detection-box"></div>
+        </div>
+        
+        <div class="auth-status" id="authStatus">
+            <p>Position your face in the frame</p>
+        </div>
+        
+        <div class="auth-controls">
+            <button class="cyber-btn" onclick="showCaptureModal()">CAPTURE & AUTHENTICATE</button>
+        </div>
+    </div>
+
+    <div id="analysis-screen" class="screen">
+        <div class="corner-bracket top-left"></div>
+        <div class="corner-bracket top-right"></div>
+        <div class="corner-bracket bottom-left"></div>
+        <div class="corner-bracket bottom-right"></div>
+        
+        <h2 class="auth-title">3D FACE ANALYSIS</h2>
+        
+        <div class="split-view">
+            <div class="left-panel">
+                <h3 class="panel-title">CAPTURED IMAGE</h3>
+                <div class="image-container">
+                    <img id="capturedImage" />
+                    <canvas id="capturedMeshCanvas"></canvas>
+                </div>
+                <div class="analysis-info">
+                    <p class="info-line"><span class="info-label">LANDMARKS:</span> <span id="landmarkCount">0</span></p>
+                    <p class="info-line"><span class="info-label">CONFIDENCE:</span> <span id="detectionConfidence">0%</span></p>
+                    <p class="info-line"><span class="info-label">STATUS:</span> <span id="analysisStatus">ANALYZING...</span></p>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <h3 class="panel-title">3D WIREFRAME MODEL</h3>
+                <canvas id="wireframe3D"></canvas>
+                <div class="wireframe-controls">
+                    <button class="cyber-btn-small" onclick="rotate3DModel('left')">◄ ROTATE LEFT</button>
+                    <button class="cyber-btn-small" onclick="rotate3DModel('right')">ROTATE RIGHT ►</button>
+                    <button class="cyber-btn-small" onclick="reset3DModel()">RESET VIEW</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-controls">
+            <button class="cyber-btn" onclick="authenticateFromAnalysis()">AUTHENTICATE</button>
+            <button class="cyber-btn" onclick="backToCamera()">BACK TO CAMERA</button>
+        </div>
+    </div>
+
+    <div id="success-screen" class="screen">
+        <div class="corner-bracket top-left"></div>
+        <div class="corner-bracket top-right"></div>
+        <div class="corner-bracket bottom-left"></div>
+        <div class="corner-bracket bottom-right"></div>
+        
+        <div class="success-content">
+            <div class="glitch-wrapper">
+                <h1 class="success-title glitch-text" data-text="ACCESS GRANTED">ACCESS GRANTED</h1>
+            </div>
+            
+            <div class="cyber-dialog-box">
+                <div class="dialog-corner tl"></div>
+                <div class="dialog-corner tr"></div>
+                <div class="dialog-corner bl"></div>
+                <div class="dialog-corner br"></div>
+                
+                <div class="dialog-header">
+                    <div class="dialog-icon">
+                        <div class="success-icon-animated">✓</div>
+                    </div>
+                </div>
+                
+                <div class="dialog-body">
+                    <h2 class="welcome-message typing-effect" id="welcomeName">HELLO, USER!</h2>
+                    
+                    <div class="divider-line"></div>
+                    
+                    <div class="auth-details">
+                        <p class="detail-item">
+                            <span class="detail-icon">►</span>
+                            <span class="detail-text">BIOMETRIC AUTHENTICATION SUCCESSFUL</span>
+                        </p>
+                        <p class="detail-item">
+                            <span class="detail-icon">►</span>
+                            <span class="detail-text">IDENTITY VERIFIED</span>
+                        </p>
+                        <p class="detail-item">
+                            <span class="detail-icon">►</span>
+                            <span class="detail-text">SYSTEM ACCESS AUTHORIZED</span>
+                        </p>
+                    </div>
+                    
+                    <div class="timestamp" id="timestamp"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Name Input Modal - Outside all screens so it's always accessible -->
+    <div id="capture-modal" class="modal">
+        <div class="modal-content">
+            <h2>REGISTER NEW USER</h2>
+            <div class="input-container">
+                <label for="userName">ENTER YOUR NAME:</label>
+                <input type="text" id="userName" class="cyber-input" placeholder="Type your name..." />
+            </div>
+            <div class="modal-buttons">
+                <button class="cyber-btn" onclick="captureImage()">SAVE</button>
+                <button class="cyber-btn" onclick="closeCaptureModal()">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
