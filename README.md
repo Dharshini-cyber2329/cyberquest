@@ -1,71 +1,74 @@
-CyberFace: AI Biometric → 3D Gaming Avatar System
+CyberQuest
+AI Biometric Authentication → 3D Avatar Gaming Engine
 
-CyberFace is an AI-powered biometric authentication system built using DeepFace (FaceNet512) and Flask, designed as the foundation for a next-generation 3D gaming identity engine.
+CyberQuest is an AI-powered biometric authentication system built using DeepFace (FaceNet512) and Flask.
 
-This project begins with secure face authentication and evolves into a game-ready avatar generation system powered by Three.js.
+This project begins as a secure face recognition system and evolves into a next-generation 3D avatar-based gaming identity platform using Three.js.
 
-🔐 Phase 1 – Biometric Authentication
+🔐 Phase 1 – AI Face Authentication (Completed)
+
+CyberQuest currently supports:
 
 DeepFace (FaceNet512 embeddings)
 
-RetinaFace detection
+RetinaFace / MTCNN detection
 
-Flask backend API
+Real-time webcam capture
 
-Real-time face verification
+Biometric verification using deep learning
 
 Secure embedding comparison
 
+Flask backend API
+
 Cyber-style interactive UI
 
-🎮 Phase 2 – Avatar Generation (Upcoming)
+Audio feedback system
 
-After authentication, the system will:
+User registration & authentication flow
 
-Extract facial features
+The system converts a human face into a 512-dimensional embedding vector and verifies identity using deep metric learning.
 
-Generate a personalized digital avatar
+🎮 Phase 2 – 3D Avatar Generation (In Progress)
 
-Convert biometric data into a game-ready character
+After successful authentication, the system will:
 
-Render 3D models using Three.js
+Extract facial feature embeddings
 
-Integrate into an interactive browser-based game
+Map biometric data to avatar traits
 
-🧠 Tech Stack
+Generate personalized digital characters
 
-Python (Flask)
+Render interactive 3D avatars using Three.js
+
+Integrate into a browser-based game environment
+
+Goal:
+Turn real-world identity into a playable digital character.
+
+🧠 Technology Stack
+Backend
+
+Python
+
+Flask
 
 DeepFace (FaceNet512)
 
+TensorFlow / Keras
+
 OpenCV
 
-TensorFlow
+Pillow
+
+NumPy
+
+Frontend
+
+HTML5
+
+CSS3 (Cyber UI theme)
 
 JavaScript
 
 Three.js (Upcoming)
-
-HTML/CSS (Cyber UI)
-
-ROADMAP
-
- Basic Face Authentication
-
- DeepFace Integration (FaceNet512)
-
- Embedding Database Storage
-
- Liveness Detection
-
- Avatar Feature Mapping
-
- Three.js 3D Character Rendering
-
- Game Environment Integration
-
- Multiplayer Identity Sync
-
-🌍 Vision
-
-To build a biometric-powered gaming identity system where a user’s real face becomes their digital game character.
